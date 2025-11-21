@@ -6,14 +6,14 @@
 #include "../include/show.h"
 
 static void draw_main() {
-    printf("\n■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■\n");
-    printf("■    ■ BOOK MY SHOW — Struct-based (C)     ■\n");
-    printf("■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■\n");
+    printf("\n--------------------------------------\n");
+    printf("+----------+ BOOK MY SHOW +----------+\n");
+    printf("--------------------------------------\n");
 }
 
 int main() {
-    while(1) {
-        draw_main();
+    while(1) {                                                                          //Loop around main_menu
+        draw_main();                                                                    //Print BOOK MY SHOW
         printf("1. Register\n2. Login\n3. Admin Menu\n4. Exit\nChoice: ");
         int c; if (scanf("%d", &c)!=1) { while(getchar()!='\n'); continue; }
         if (c==1) register_user();
