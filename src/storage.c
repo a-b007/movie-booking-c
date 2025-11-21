@@ -2,6 +2,9 @@
 #include <stdlib.h>
 #include <string.h>
 #include "../include/types.h"
+#include <sys/stat.h>
+#include <sys/types.h>
+
 
 /* Simple binary storage layer for Movie, Theatre, Show */
 

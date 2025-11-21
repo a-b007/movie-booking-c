@@ -13,6 +13,14 @@ int update_show(Show *updated);
 int read_show_by_id(int id, Show *dest);
 int read_movie_by_id(int id, Movie *dest);
 int read_theatre_by_id(int id, Theatre *dest);
+int get_movie_count();
+void list_movies();
+int get_movie_id_by_index(int idx);
+
+int get_theatre_count();
+void list_theatres();
+int get_theatre_id_by_index(int idx);
+
 
 /* Helper: normalize seat token (remove leading spaces) */
 static char *ltrim(char *s) { while (*s==' '||*s=='\t') s++; return s; }
@@ -22,18 +30,30 @@ static int seat_to_rc(const char *seat, int *out_r, int *out_c, int rows, int co
     if (!seat || strlen(seat)<2) return 0;
     char rowch = seat[0]; if (!isalpha((unsigned char)rowch)) return 0;
     int r = toupper(rowch) - 'A'; int c = atoi(seat+1) - 1; if (r<0 || r>=rows || c<0 || c>=cols) return 0;
-    *out_r = r; *out_c = c; return 1;
+    if (out_r) *out_r = r;
+    if (out_c) *out_c = c;
+    return 1;
+
 }
 
 /* split CSV into tokens, calling func for each token */
 static void for_each_seat_token(const char *csv, void (*fn)(const char *, void *), void *ud) {
-    if (!csv) return; char tmp[4096]; strncpy(tmp, csv, sizeof(tmp)-1); tmp[sizeof(tmp)-1]=0;
+    if (!csv) return;
+    char tmp[4096];
+    strncpy(tmp, csv, sizeof(tmp)-1);
+    tmp[sizeof(tmp)-1]=0;
     char *tok = strtok(tmp, ","); while(tok) { char *s = ltrim(tok); fn(s, ud); tok = strtok(NULL, ","); }
 }
 
 static int seat_in_csv(const char *csv, const char *seat) {
-    if (!csv || csv[0]==0) return 0; char tmp[4096]; strncpy(tmp,csv,sizeof(tmp)-1); tmp[sizeof(tmp)-1]=0;
-    char *tok = strtok(tmp, ","); while(tok) { char *s=ltrim(tok); if (strcmp(s, seat)==0) return 1; tok = strtok(NULL, ","); }
+    if (!csv || csv[0] == 0) return 0;
+
+    char tmp[4096];
+    strncpy(tmp, csv, sizeof(tmp)-1);
+    tmp[sizeof(tmp)-1] = 0;
+
+    char *tok = strtok(tmp, ",");
+    while(tok) { char *s=ltrim(tok); if (strcmp(s, seat)==0) return 1; tok = strtok(NULL, ","); }
     return 0;
 }
 
@@ -110,7 +130,13 @@ void admin_add_show() {
     int mid = get_movie_id_by_index(midx); if (mid<1) { printf("Invalid movie index.\n"); return; }
     printf("Select theatre:\n"); list_theatres(); printf("Enter theatre index (1..): "); int tidx; if(scanf("%d", &tidx)!=1){ while(getchar()!='\n'); return; }
     int tid = get_theatre_id_by_index(tidx); if (tid<1) { printf("Invalid theatre index.\n"); return; }
-    while(getchar()!='\n'); char time[TIME_LEN]; printf("Enter show time (e.g. 18:30): "); fgets(time, sizeof(time), stdin); time[strcspn(time, "\n")] = 0;
+    while (getchar() != '\n') {}
+
+    char time[TIME_LEN];
+    printf("Enter show time (e.g. 18:30): ");   
+    fgets(time, sizeof(time), stdin);
+    time[strcspn(time, "\n")] = 0;
+
     int rows, cols; printf("Rows: "); if(scanf("%d", &rows)!=1) return; printf("Cols: "); if(scanf("%d", &cols)!=1) return;
     Show s = {0}; s.id = next_show_id(); s.movie_id = mid; s.theatre_id = tid; strncpy(s.time, time, TIME_LEN-1); s.rows = rows; s.cols = cols; s.booked_csv[0]=0;
     if (append_show(&s)) printf("Show added id=%d\n", s.id); else printf("Failed to add show\n");

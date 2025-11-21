@@ -7,7 +7,7 @@
 
 static void draw_main() {
     printf("\n■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■\n");
-    printf("■    ■ BOOK MY SHOW ■    ■\n");
+    printf("■    ■ BOOK MY SHOW — Struct-based (C)     ■\n");
     printf("■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■\n");
 }
 

@@ -14,7 +14,7 @@ static void spinner_animation(const char *prefix, int cycles) {
     const char *sp = "|/-\\";
     printf("%s ", prefix);
     for (int i=0;i<cycles;i++) { printf("%c\r", sp[i%4]); fflush(stdout); usleep(80000); }
-    printf(" ") ;
+    printf(" ");
 }
 
 static void print_seat_grid(int rows, int cols, int show_id) {

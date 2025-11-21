@@ -4,6 +4,9 @@
 #include "../include/types.h"
 #include "../include/movie.h"
 
+int read_movie_by_id(int id, Movie *dest);
+
+
 /* storage helpers declared in storage.c (forward) */
 int append_movie(const Movie *m);
 int read_all_movies(Movie **out, size_t *count);
