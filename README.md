@@ -75,8 +75,3 @@ NOTES
 
     Data persistence is implemented using text-based storage in the data/ folder.
 
-TEAM TOP C
-Name	Roll Number	Role
-Mohit	BC2025063	Core Development
-Charan	BC2025032	Backend and Storage
-Anamitra	BC2025008	Booking Logic and UI Flow
