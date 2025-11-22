@@ -36,27 +36,12 @@ Folder Structure
 
 After unzipping the project folder, ensure the structure is as follows:
 
-book-my-show/
-|── data/
-├── include/
-│   ├── booking.h
-│   ├── movie.h
-│   ├── show.h
-│   ├── theatre.h
-│   ├── types.h
-│   ├── user.h
-├── src/
-│   ├── booking.c
-│   ├── main.c
-│   ├── movie.c
-│   ├── show.c
-│   ├── storage.c
-│   ├── theatre.c
-│   ├── user.c
-├── Makefile
-└── README.md
-
-Build Instructions
+book-my-show
+    -include - booking.h, movie.h, show.h, theatre.h, types.h, user.h
+    -src - booking.c, main.c, movie.c, show.c, storage.c, theatre.c, user.c
+    -data 
+    -Makefile
+    -README.md
 
 Open a terminal (Linux or WSL) and run:
 
