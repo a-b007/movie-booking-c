@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include "../include/user.h"
 #include "../include/movie.h"
 #include "../include/theatre.h"
@@ -19,6 +20,16 @@ int main() {
         if (c==1) register_user();
         else if (c==2) login_user();
         else if (c==3) {
+            char pass[64];
+            printf("Enter admin password: ");
+            scanf("%63s",pass);
+
+            if (strcmp(pass, "admin123")!=0)
+            {
+                printf("Access denied. Incorrect password.\n");
+                continue;
+            }
+
             while(1) {
                 printf("\n--- ADMIN ---\n1.Add Movie\n2.Add Theatre\n3.Add Show\n4.List Movies\n5.List Theatres\n6.List Shows\n7.Back\nChoice: ");
                 int a; if (scanf("%d", &a)!=1) { while(getchar()!='\n'); break; }
