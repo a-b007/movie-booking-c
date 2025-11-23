@@ -19,16 +19,27 @@ int get_theatre_count();
 void list_theatres();
 int get_theatre_id_by_index(int idx);
 
-// Helper Function
-static char *ltrim(char*s) {
+// Helper Function to trim spaces
+static char *trim(char*s) {
+    if(!s) return s;
+
+    //left trim
     while(*s == ' ' || *s == '\t') s++;
+
+    //right trim
+    char *end = s + strlen(s) - 1;
+    while(end >= s && (*end == ' '||*end == '\t' || *end == '\n'))
+    {
+        *end = '\0';
+        end--;
+    }
     return s;
 }
 
 void list_shows() {
     Show *arr;
     size_t n;
-    if(!read_all_shows(&arr,&n)) {
+    if(!read_all_shows(&arr,&n)) { // get all shows in arr and no of shows == n
         printf("No shows.\n");
         return;
     }
@@ -38,17 +49,17 @@ void list_shows() {
         char mname[NAME_LEN];
         char tname[NAME_LEN];
 
-        if(!read_movie_by_id(arr[i].movie_id,&mv))
-            strncpy(mname,"<unknown>",NAME_LEN);
+        if(!read_movie_by_id(arr[i].movie_id,&mv))//getting movie name via movie id
+            strncpy(mname,"<unknown>",NAME_LEN); //check
         else 
             strncpy(mname,mv.name,NAME_LEN);
 
-        if(!read_theatre_by_id(arr[i].theatre_id,&th))
-            strncpy(tname,"<unknown>",NAME_LEN);
+        if(!read_theatre_by_id(arr[i].theatre_id,&th)) //getting theatre name via theatre id
+            strncpy(tname,"<unknown>",NAME_LEN);//check
         else
             strncpy(tname,th.name,NAME_LEN);
 
-        printf("Show id=%d: %s @ %s time %s seats %dx%d booked:%s\n",
+        printf("Show id=%d: %s @ %s time %s seats %dx%d booked:%s\n", //print shows info
                arr[i].id, mname, tname, arr[i].time,
                arr[i].rows, arr[i].cols,
                arr[i].booked_csv[0]?arr[i].booked_csv:" <none>");
@@ -56,7 +67,7 @@ void list_shows() {
     free(arr);
 }
 
-int get_show_count() {
+int get_show_count() { //output no of shows
     Show *a;
     size_t n;
     if(!read_all_shows(&a,&n))
@@ -65,11 +76,11 @@ int get_show_count() {
     return (int)n;
 }
 
-int get_show_id_by_index(int idx) {
+int get_show_id_by_index(int idx) { 
     Show *a;
     size_t n;
     if(!read_all_shows(&a,&n)) return -1;
-    if(idx < 1 || idx > (int)n) { free(a); return -1; }
+    if(idx < 1 || idx > (int)n) { free(a); return -1; } 
     int id = a[idx-1].id;
     free(a);
     return id;
@@ -77,7 +88,7 @@ int get_show_id_by_index(int idx) {
 
 void get_show_dimensions(int show_id, int *rows, int *cols) {
     Show s;
-    *rows = *cols = 0;
+    *rows = *cols = 0;  //i can get show info just by show id
     if(read_show_by_id(show_id,&s)) {
         *rows = s.rows;
         *cols = s.cols;
@@ -104,7 +115,7 @@ int is_seat_booked(int show_id,const char *seat) {
 }
 
 void admin_add_show() {
-    int mcount = get_movie_count();
+    int mcount = get_movie_count(); //to check if movie or theatre even exist
     int tcount = get_theatre_count();
 
     if(mcount == 0 || tcount == 0) {
@@ -113,7 +124,7 @@ void admin_add_show() {
     }
 
     printf("Select Movie:\n");
-    list_movies();
+    list_movies();                      //movie idx -> movie id -> movie
     printf("Enter movie index (1..): ");
     int midx = 0;
     if(scanf("%d",&midx) != 1) {
@@ -128,7 +139,7 @@ void admin_add_show() {
     }
 
     printf("Select Theatre:\n");
-    list_theatres();
+    list_theatres();                  //theatre idx -> theatre id -> theatre
     printf("Enter theatre index (1..): ");
     int tidx = 0;
     if(scanf("%d",&tidx) != 1) {
@@ -145,11 +156,11 @@ void admin_add_show() {
 
     char time[TIME_LEN];
     printf("Enter show time (e.g. 18:30): ");
-    fgets(time,sizeof(time),stdin);
+    fgets(time,sizeof(time),stdin);                  //inputing the time
     time[strcspn(time,"\n")] = 0; 
 
     int rows, cols;
-    printf("Rows: ");
+    printf("Rows: ");                            //Enter no of rows and cols
     if(scanf("%d",&rows)!=1) return;
     printf("Cols: ");
     if(scanf("%d",&cols)!=1) return;
@@ -172,11 +183,11 @@ void admin_add_show() {
 
 //Helper: convert seat token to row/col 
 static int seat_to_rc(const char*seat,int *out_r,int *out_c,int rows,int cols) {
-    if(!seat || strlen(seat)<2) return 0;
-    char rowch = seat[0];
-    if(!isalpha((unsigned char)rowch)) return 0;
-    int r = toupper(rowch) - 'A';
-    int c = atoi(seat+1) - 1;
+    if(!seat || strlen(seat)<2) return 0;                                            //ideal seat would look like A2
+    char rowch = seat[0];                                                            //here A
+    if(!isalpha((unsigned char)rowch)) return 0;                                    //checking if its an alphabet or not
+    int r = toupper(rowch) - 'A';                                                   //Converting to upper
+    int c = atoi(seat+1) - 1;                                                       //adding 1 to the pointer moves it to 1(here),subtracting 1 to match idx
     if(r<0 || r>=rows || c<0 || c>=cols) return 0;
     if(out_r) *out_r = r;
     if(out_c) *out_c = c;
@@ -190,18 +201,18 @@ static void for_each_seat_token(const char *csv, void(*fn)(const char*,void*),vo
     strncpy(tmp,csv,sizeof(tmp)-1);
     tmp[sizeof(tmp)-1]=0;
     char *tok = strtok(tmp,",");
-    while(tok) { fn(ltrim(tok),ud); tok = strtok(NULL,","); }
+    while(tok) { fn(trim(tok),ud); tok = strtok(NULL,","); }
 }
 
 // Check if seat exists in CSV 
 static int seat_in_csv(const char *csv,const char *seat) {
     if(!csv || csv[0]==0) return 0;
-    char tmp[4096];
+    char tmp[4096];                                                //safely copying data of csv into tmp
     strncpy(tmp,csv,sizeof(tmp)-1);
     tmp[sizeof(tmp)-1]=0;
-    char *tok = strtok(tmp,",");
+    char *tok = strtok(tmp,",");                                  //splitting each seat ,now tok points to a seat(lets say A1)
     while(tok) {
-        if(strcmp(ltrim(tok),seat)==0) return 1;
+        if(strcmp(trim(tok),seat)==0) return 1;                  //Compares with the given seat 
         tok = strtok(NULL,",");
     }
     return 0;
@@ -216,15 +227,15 @@ int book_seats_for_show(int show_id, const char *seats_csv) {
     strncpy(tmp,seats_csv,sizeof(tmp)-1);
     tmp[sizeof(tmp)-1]=0;
     char *tok = strtok(tmp,",");
-    int newly = 0;
+    int newly = 0;                                               //To output how many new seats booked
 
     while(tok) {
-        char *seat = ltrim(tok);
-        if(!seat_to_rc(seat,NULL,NULL,s.rows,s.cols)) { tok = strtok(NULL,","); continue; }
+        char *seat = trim(tok);
+        if(!seat_to_rc(seat,NULL,NULL,s.rows,s.cols)) { tok = strtok(NULL,","); continue; }  //Checking if input seat is valid or not
 
-        if(!seat_in_csv(s.booked_csv,seat)) {
-            if(strlen(s.booked_csv) > 0) strncat(s.booked_csv,",",sizeof(s.booked_csv)-strlen(s.booked_csv)-1);
-            strncat(s.booked_csv,seat,sizeof(s.booked_csv)-strlen(s.booked_csv)-1);
+        if(!seat_in_csv(s.booked_csv,seat)) {                      //Checking if input seat is booked or not
+            if(strlen(s.booked_csv) > 0) strncat(s.booked_csv,",",sizeof(s.booked_csv)-strlen(s.booked_csv)-1); //Printing a comma, if there is any seat booked already
+            strncat(s.booked_csv,seat,sizeof(s.booked_csv)-strlen(s.booked_csv)-1);     //No comma needed if there is no seat booked
             newly++;
         }
         tok = strtok(NULL,","); // always advance
@@ -243,7 +254,7 @@ int cancel_seats_for_show(int show_id,const char *seats_csv) {
     char tmp[4096]; strncpy(tmp,seats_csv,sizeof(tmp)-1); tmp[sizeof(tmp)-1]=0;
     char *tok = strtok(tmp,",");
     while(tok && tc<1024) {
-        strncpy(to_cancel[tc++],ltrim(tok),15);
+        strncpy(to_cancel[tc++],trim(tok),15);
         to_cancel[tc-1][15]=0;
         tok = strtok(NULL,",");
     }
@@ -253,7 +264,7 @@ int cancel_seats_for_show(int show_id,const char *seats_csv) {
     char tmp2[4096]; strncpy(tmp2,s.booked_csv,sizeof(tmp2)-1); tmp2[sizeof(tmp2)-1]=0;
     char *tok2 = strtok(tmp2,",");
     while(tok2) {
-        char *seat = ltrim(tok2);
+        char *seat = trim(tok2);
         int should_remove=0;
         for(int i=0;i<tc;i++) if(strcmp(seat,to_cancel[i])==0){ should_remove=1; break; }
         if(!should_remove) {
