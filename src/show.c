@@ -1,3 +1,5 @@
+#define _POSIX_C_SOURCE 200809L
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -107,6 +109,27 @@ void get_show_info(int show_id,int *movie_idx,int* theatre_idx,char *timebuf,int
     }
 }
 
+// Check if seat exists in CSV 
+static int seat_in_csv(const char *csv,const char *seat) {
+    if(!csv || csv[0]==0) 
+        return 0;
+    
+    
+    char tmp[4096];                                                //safely copying data of csv into tmp
+    strncpy(tmp,csv,sizeof(tmp)-1);
+    tmp[sizeof(tmp)-1]=0;
+
+    char *saveptr;
+    char *tok = strtok_r(tmp,",", &saveptr);                                  //splitting each seat ,now tok points to a seat(lets say A1)
+    
+    while(tok) {
+        char *s = trim(tok);
+        if(strcmp(s,seat)==0) return 1;                  //Compares with the given seat 
+        tok = strtok_r(NULL,",",&saveptr);
+    }
+    return 0;
+}
+
 int is_seat_booked(int show_id,const char *seat) {
     Show s;
     if(!read_show_by_id(show_id,&s))
@@ -194,7 +217,7 @@ static int seat_to_rc(const char*seat,int *out_r,int *out_c,int rows,int cols) {
     return 1;
 }
 
-// Call function for each seat token in CSV 
+/* Call function for each seat token in CSV 
 static void for_each_seat_token(const char *csv, void(*fn)(const char*,void*),void *ud) {
     if(!csv) return;
     char tmp[4096];
@@ -203,20 +226,8 @@ static void for_each_seat_token(const char *csv, void(*fn)(const char*,void*),vo
     char *tok = strtok(tmp,",");
     while(tok) { fn(trim(tok),ud); tok = strtok(NULL,","); }
 }
+*/
 
-// Check if seat exists in CSV 
-static int seat_in_csv(const char *csv,const char *seat) {
-    if(!csv || csv[0]==0) return 0;
-    char tmp[4096];                                                //safely copying data of csv into tmp
-    strncpy(tmp,csv,sizeof(tmp)-1);
-    tmp[sizeof(tmp)-1]=0;
-    char *tok = strtok(tmp,",");                                  //splitting each seat ,now tok points to a seat(lets say A1)
-    while(tok) {
-        if(strcmp(trim(tok),seat)==0) return 1;                  //Compares with the given seat 
-        tok = strtok(NULL,",");
-    }
-    return 0;
-}
 
 // Book seats (avoid duplicates). Returns number newly booked 
 int book_seats_for_show(int show_id, const char *seats_csv) {
@@ -226,19 +237,31 @@ int book_seats_for_show(int show_id, const char *seats_csv) {
     char tmp[4096];
     strncpy(tmp,seats_csv,sizeof(tmp)-1);
     tmp[sizeof(tmp)-1]=0;
-    char *tok = strtok(tmp,",");
+
+    char *saveptr;
+    char *tok = strtok_r(tmp,",",&saveptr);
     int newly = 0;                                               //To output how many new seats booked
 
     while(tok) {
         char *seat = trim(tok);
-        if(!seat_to_rc(seat,NULL,NULL,s.rows,s.cols)) { tok = strtok(NULL,","); continue; }  //Checking if input seat is valid or not
+        if(!seat_to_rc(seat,NULL,NULL,s.rows,s.cols))            //Checking if input seat is valid or not.
+        {
+            tok = strtok_r(NULL,",",&saveptr);
+            continue;
+        }
+
+        char booked_copy[4096];
+        strncpy(booked_copy, s.booked_csv, sizeof(booked_copy)-1);
+        booked_copy[sizeof(booked_copy)-1] = 0;
 
         if(!seat_in_csv(s.booked_csv,seat)) {                      //Checking if input seat is booked or not
-            if(strlen(s.booked_csv) > 0) strncat(s.booked_csv,",",sizeof(s.booked_csv)-strlen(s.booked_csv)-1); //Printing a comma, if there is any seat booked already
+            if(strlen(s.booked_csv) > 0)
+                strncat(s.booked_csv,",",sizeof(s.booked_csv)-strlen(s.booked_csv)-1); //Printing a comma, if there is any seat booked already
+
             strncat(s.booked_csv,seat,sizeof(s.booked_csv)-strlen(s.booked_csv)-1);     //No comma needed if there is no seat booked
             newly++;
         }
-        tok = strtok(NULL,","); // always advance
+        tok = strtok_r(NULL,",",&saveptr); // always advance
     }
 
     if(newly > 0 && !update_show(&s)) return 0;
