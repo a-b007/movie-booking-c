@@ -27,7 +27,7 @@ static void print_seat_grid(int rows, int cols, int show_id) {
 
             int booked = is_seat_booked(show_id, seat);                 //If seat is booked prints [XX]
 
-            printf("[%c]", booked ? 'XX' : 'seat');
+            printf("[%s]", booked ? "XX" : seat);
         }
         printf("\n");
     }
