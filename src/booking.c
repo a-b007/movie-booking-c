@@ -25,14 +25,14 @@ static void print_seat_grid(int rows, int cols, int show_id) {
             char seat[16];                                                 
             snprintf(seat, sizeof(seat), "%c%d", 'A' + r, c + 1);       //Build label like A1, A2, C3, and so on
 
-            int booked = is_seat_booked(show_id, seat);                 //If seat is booked prints [X], else [O]
+            int booked = is_seat_booked(show_id, seat);                 //If seat is booked prints [XX]
 
-            printf("[%c]", booked ? 'X' : 'O');
+            printf("[%c]", booked ? 'XX' : 'seat');
         }
         printf("\n");
     }
 
-    printf("\nO=Available, X=Booked\n");
+    printf("\nXX = Booked\n");
 }
 
 //Takes comma-separated input for multiple seats, breaks into tokens based on commas and removes spaces and so on
