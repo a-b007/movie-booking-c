@@ -107,6 +107,20 @@ void get_show_info(int show_id,int *movie_idx,int* theatre_idx,char *timebuf,int
     }
 }
 
+// Check if seat exists in CSV 
+static int seat_in_csv(const char *csv,const char *seat) {
+    if(!csv || csv[0]==0) return 0;
+    char tmp[4096];                                                //safely copying data of csv into tmp
+    strncpy(tmp,csv,sizeof(tmp)-1);
+    tmp[sizeof(tmp)-1]=0;
+    char *tok = strtok(tmp,",");                                  //splitting each seat ,now tok points to a seat(lets say A1)
+    while(tok) {
+        if(strcmp(trim(tok),seat)==0) return 1;                  //Compares with the given seat 
+        tok = strtok(NULL,",");
+    }
+    return 0;
+}
+
 int is_seat_booked(int show_id,const char *seat) {
     Show s;
     if(!read_show_by_id(show_id,&s))
@@ -194,7 +208,7 @@ static int seat_to_rc(const char*seat,int *out_r,int *out_c,int rows,int cols) {
     return 1;
 }
 
-// Call function for each seat token in CSV 
+/* Call function for each seat token in CSV 
 static void for_each_seat_token(const char *csv, void(*fn)(const char*,void*),void *ud) {
     if(!csv) return;
     char tmp[4096];
@@ -203,20 +217,8 @@ static void for_each_seat_token(const char *csv, void(*fn)(const char*,void*),vo
     char *tok = strtok(tmp,",");
     while(tok) { fn(trim(tok),ud); tok = strtok(NULL,","); }
 }
+*/
 
-// Check if seat exists in CSV 
-static int seat_in_csv(const char *csv,const char *seat) {
-    if(!csv || csv[0]==0) return 0;
-    char tmp[4096];                                                //safely copying data of csv into tmp
-    strncpy(tmp,csv,sizeof(tmp)-1);
-    tmp[sizeof(tmp)-1]=0;
-    char *tok = strtok(tmp,",");                                  //splitting each seat ,now tok points to a seat(lets say A1)
-    while(tok) {
-        if(strcmp(trim(tok),seat)==0) return 1;                  //Compares with the given seat 
-        tok = strtok(NULL,",");
-    }
-    return 0;
-}
 
 // Book seats (avoid duplicates). Returns number newly booked 
 int book_seats_for_show(int show_id, const char *seats_csv) {
