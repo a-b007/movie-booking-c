@@ -14,12 +14,34 @@
 // Prints a row x column grid
 static void print_seat_grid(int rows, int cols, int show_id) {
 
-    printf("\n     SCREEN THIS WAY\n");
+    //To center the screen this way text
+    for (int i = 0; i < ((4*cols)-7)/2; i++) {
+        putchar(' ');
+    }
+    printf("SCREEN THIS WAY\n");
+
+    printf("      ");
+
+    for (int i = 0; i < 4*cols; i++) {                      //For printing the movie screen
+        putchar('-');
+    }
+    printf("\n     ");
+    printf("/");
+    printf("\033[47m");
+    for (int i = 0; i < 4*cols; i++) {
+        putchar('_');
+    }
+    printf("\033[0m");
+    printf("\\");
+    
+    printf("\n");
+    printf("\n");
+
 
     for (int r = 0; r < rows; r++) {
 
         printf(" %c  ", 'A' + r);  // Row label (A, B, C...)
-
+        printf("||");
         for (int c = 0; c < cols; c++) {
 
             char seat[16];                                                 
@@ -27,12 +49,16 @@ static void print_seat_grid(int rows, int cols, int show_id) {
 
             int booked = is_seat_booked(show_id, seat);                 //If seat is booked prints [XX]
 
-            printf("[%s]", booked ? "XX" : seat);
+            if (booked)
+                printf("[\033[31mXX\033[0m]");    // Red for booked
+            else
+                printf("[\033[32m%s\033[0m]", seat); // Green for available
         }
+        printf("||");
         printf("\n");
     }
 
-    printf("\nXX = Booked\n");
+    printf("\n\033[31mXX\033[0m = Booked\n");
 }
 
 //Takes comma-separated input for multiple seats, breaks into tokens based on commas and removes spaces and so on
@@ -118,7 +144,7 @@ void user_dashboard(const char *username) {
 
             print_seat_grid(rows, cols, sid);
 
-            printf("Enter seats to book (comma separated, e.g. A1,A2): ");
+            printf("Enter seats to book (comma separated, e.g. A1,A2)(Press Enter to return): ");
 
             char buf[512];
             while (getchar() != '\n');
@@ -175,7 +201,7 @@ void user_dashboard(const char *username) {
 
             print_seat_grid(rows, cols, sid);
 
-            printf("Enter seats to cancel (comma separated, e.g. A1,A2): ");
+            printf("Enter seats to cancel (comma separated, e.g. A1,A2)(Enter to return): ");
 
             char buf[512];
             while (getchar() != '\n');

@@ -14,7 +14,7 @@ static void draw_main() {
 }
 
 int main() {
-    while(1) {                                                                          //Loop around main_menu
+    while(1) {                          //Loop around main_menu
         draw_main();
         //Print BOOK MY SHOW
         printf("1. Register\n2. Login\n3. Admin Menu\n4. Exit\nChoice: ");
@@ -33,7 +33,7 @@ int main() {
 
         else if (c==3)
         {
-            char pass[64];
+            char pass[64];                          //collets admin passwd and checks it before allowing admin mode
             printf("Enter admin password: ");
             scanf("%63s",pass);
 
