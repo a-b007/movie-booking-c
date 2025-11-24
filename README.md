@@ -1,4 +1,4 @@
-# BOOK MY SHOW - Struct-Based C Movie Booking System
+# BOOK MY SHOW - C Movie Booking System
 
 By Team Top C - Mohit (BC2025063), Charan (BC2025032), Anamitra (BC2025008)
 
